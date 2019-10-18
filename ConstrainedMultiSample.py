@@ -466,7 +466,7 @@ def LearnSteinerHelper(args):
 def LearnSteiner(opts, stpPath, outPath, sampleName, targetFile, threads):
     print "Learning Steiner forest for %s" % sampleName
     pyFile = os.path.join(os.path.dirname(__file__),"PCSF.py")
-    os.system("python %s --outputpath=%s --msgpath=%s --depth=%d --conn=3 --targetfile=%s --stppath=%s/ --stpfile=%s --W=%s_%s_%s --beta=1.0_1.0_1.0 --exclude=2 --species=human --threads=%s" % (pyFile, outPath, opts.msgPath, opts.depth, targetFile, stpPath, sampleName, str(opts.W), str(opts.W), str(opts.W), str(threads)))
+    os.system("python %s --outputpath=%s --msgpath=%s --depth=%d --conn=3 --targetfile=%s --stppath=%s/ --stpfile=%s --W=%s_%s_%s --beta=%s_%s_%s --exclude=2 --species=human --threads=%s" % (pyFile, outPath, opts.msgPath, opts.depth, targetFile, stpPath, sampleName, str(opts.W), str(opts.W), str(opts.W), str(opts.beta), str(opts.beta), str(opts.beta), str(threads)))
 
 
 # Find and return a set of the potential Steiner nodes, the non-prize
