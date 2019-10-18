@@ -153,7 +153,7 @@ def main(argList):
         pool.map(LearnSteinerHelper, zippedArgs)
         lastForests = [] # A list of sets, where each set contains the Steiner forest nodes
         for i in range(numSamples):
-            lastForests.append(LoadForestNodes("%s/symbol_%s_%s_1.0_%d.txt" % (itrPath, sampleNames[i], str(opts.W), opts.depth)))
+            lastForests.append(LoadForestNodes("%s/symbol_%s_%s_%s_%d.txt" % (itrPath, sampleNames[i], str(opts.W), str(opts.beta), opts.depth)))
         lastForestMap[group] = lastForests
 
 
@@ -185,7 +185,7 @@ def main(argList):
         potentialSteiner = FlattenDict(potentialSteinerMap, groups)
 
         for i in range(len(sampleNames)):
-            forestFile = "%s/symbol_%s_%s_1.0_%d.txt" % (itrPath, sampleNames[i], str(opts.W), opts.depth)
+            forestFile = "%s/symbol_%s_%s_%s_%d.txt" % (itrPath, sampleNames[i], str(opts.W), str(opts.beta), opts.depth)
             FilterStpEdges(forestFile, initPath, finalPath, sampleNames[i], degPenalties, potentialSteiner[i])
             shutil.copyfile(os.path.join(initPath,dummyNeighborFiles[i]), os.path.join(finalPath,dummyNeighborFiles[i]))
 
@@ -256,7 +256,7 @@ def RandSequential(opts, initPath, allProts, sampleMap, potentialSteinerMap, dum
                 # All samples (besides the first and last in the random order) will use last forests
                 # that are a mix of forests from this iteration and the previous iteration
                 LearnSteiner(opts, itrPath, itrPath, sampleNames[index], dummyNeighborFiles[index], opts.workers)
-                lastForests[index] = LoadForestNodes("%s/symbol_%s_%s_1.0_%d.txt" % (itrPath, sampleNames[index], str(opts.W), opts.depth))
+                lastForests[index] = LoadForestNodes("%s/symbol_%s_%s_%s_%d.txt" % (itrPath, sampleNames[index], str(opts.W), str(opts.beta), opts.depth))
             # Store all forests learned for this group at this iteration so they can be
             # retreived at the next iteration
             lastForestMap[group] = lastForests
@@ -309,7 +309,7 @@ def Batch(opts, pool, initPath, allProts, sampleMap, potentialSteinerMap, dummyN
             pool.map(LearnSteinerHelper, zippedArgs)
             lastForests = []
             for i in range(numSamples):
-                lastForests.append(LoadForestNodes("%s/symbol_%s_%s_1.0_%d.txt" % (itrPath, sampleNames[i], str(opts.W), opts.depth)))
+                lastForests.append(LoadForestNodes("%s/symbol_%s_%s_%s_%d.txt" % (itrPath, sampleNames[i], str(opts.W), str(opts.beta), opts.depth)))
             lastForestMap[group] = lastForests
 
     return itrPath
@@ -393,7 +393,7 @@ def CreateWgtPrizes(allProts, lastForests, lambda1, alpha, negativePrizes):
             # Frequently is guaranteed to be > 0 because the keys are only
             # the union of all forest nodes
             artificialPrizes[node] = lambda1 * (freq ** alpha)
-                
+
     return artificialPrizes
 
 # Create unweighted artificial prizes by explicitly constructing a common
@@ -401,13 +401,13 @@ def CreateWgtPrizes(allProts, lastForests, lambda1, alpha, negativePrizes):
 # on whether positive or negative prizes are being used.
 def CreateUnwgtPrizes(allProts, potentialSteiner, lastForests, lambda1, lambda2, negativePrizes):
     # Construct the common set
-    commonSet = set()    
+    commonSet = set()
     for prot in allProts:
         # The same scoring function works for both positive and negative prizes
         inScore = Penalty(prot, potentialSteiner, lastForests)
         if lambda1 * inScore < lambda2:
             commonSet.add(prot)
-    
+
     # Build the prizes based on the common set.  With positive artificial prizes
     # add prizes when a node is in the common set.  With negative artificial
     # prizes add a prize when a node is not in the common set.
@@ -482,7 +482,7 @@ def DummyNeighbors(allProts, path, stpFile, dnFile, neighborType):
             if parts[0] == "W" and not parts[1].endswith("_MRNA"):
                 prizes.add(parts[1])
 
-    psNodes = allProts.difference(prizes)    
+    psNodes = allProts.difference(prizes)
 
     if neighborType == "prizes":
         NetworkUtil.WriteCollection(os.path.join(path,dnFile), prizes)
